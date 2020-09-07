@@ -1,7 +1,6 @@
 import json
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
-from accounts.models import UserDetails, User
 from .models import *
 
 
@@ -33,7 +32,7 @@ class SocketConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def store_message(self, data):
 
-        sender =UserDetails(user=User(user_id=data['sender_id']))
+        sender = UserDetails(user=User(user_id=data['sender_id']))
         recipient = UserDetails(user=User(user_id=data['recipient_id']))
         print(sender)
         print(recipient)

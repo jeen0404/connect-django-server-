@@ -1,6 +1,8 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
+from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
@@ -96,3 +98,31 @@ class Message(CreateAPIView):
     """ for handling message request """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MessagesSerializer
+    queryset = Messages.objects.all()
+
+
+
+    def put(self, request, **kwargs):
+        ser = self.serializer_class(
+            data=request.data, context={'request': request}
+        )
+        if ser.is_valid():
+            message = Messages()
+            message.message_id = request.data['message_id']
+            message.conversation_id = request.data['conversation_id']
+            message.sender_id = request.data['sender_id']
+            message.recipient_id = request.data['recipient_id']
+            message.message_type = request.data['message_type']
+            message.message = request.data['message']
+            message.status = 1  # 1 means received  at server
+            message.save()
+            return True
+        else:
+            return False
+
+    def delete(self, request, **kwargs):
+        try:
+            Messages.objects.get(request.data['message_id'], request.data['sender_id']).delete()
+            return Response(True)
+        except MultiValueDictKeyError as e:
+            return Response(e)

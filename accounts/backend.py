@@ -8,6 +8,7 @@ from django.contrib.auth.backends import ModelBackend
 from utils.utils import model_field_attr
 from .models import PhoneToken
 
+
 class PhoneBackend(ModelBackend):
     def __init__(self, *args, **kwargs):
         self.user_model = get_user_model()
