@@ -26,7 +26,7 @@ class GenerateOTP(CreateAPIView):
 
     def post(self, request, format=None, **kwargs):
         # Get the patient if present or result None.
-        print('request', request.data)
+        #print('request', request.data)
         ser = self.serializer_class(
             data=request.data,
             context={'request': request}
@@ -72,9 +72,9 @@ class ValidateOTP(CreateAPIView):
                 login(request, user)
                 try:
                     user_details = UserDetails.objects.get(user=user)
-                    print('user_details', user_details.user)
+                    #print('user_details', user_details.user)
                 except Exception as e:
-                    print(e)
+                    #print(e)
                     user_details = None
                 response = user_detail(user, user_details)
 
@@ -100,7 +100,7 @@ class CheckUsernameAvailability(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, **kwargs):
-        print('data', request.data)
+        #print('data', request.data)
         ser = self.serializer_class(
             data=request.data, context={'request': request}
         )
@@ -117,7 +117,7 @@ class AddUserDetailsView(CreateAPIView):
     queryset = UserDetails.objects.all()
 
     def post(self, request, **kwargs):
-        print('data', request.data)
+        #print('data', request.data)
         ser = self.serializer_class(
             data=request.data, context={'request': request}
         )
@@ -180,5 +180,6 @@ class ViewProfile(generics.CreateAPIView):
             data = {'reason': "user not exist", 'error': str(e)}
 
         return Response(data)
+
 
 

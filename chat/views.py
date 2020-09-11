@@ -1,12 +1,10 @@
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-
 from accounts.models import UserDetails, User
 from accounts.serializers import SearchViewSerializer
 from .models import Conversation, Messages
@@ -74,8 +72,7 @@ class GetAllMessages(CreateAPIView):
     def post(self, request, **kwargs):
         user = request.user
         conversation_id = request.data['conversation_id']
-        conversation_list = Messages.objects.filter(conversation_id=conversation_id, deleted=False).order_by(
-            'created_at')
+        conversation_list = Messages.objects.filter(conversation_id=conversation_id, deleted=False)
         data = conversation_list.values_list('message_id', 'conversation_id', 'sender_id', 'recipient_id', 'message',
                                              'message_type', 'created_at', 'deleted', 'status')
         response = []
@@ -91,6 +88,9 @@ class GetAllMessages(CreateAPIView):
                 'deleted': str(j[7]),
                 'status': str(j[8]),
             })
+        conversation = Conversation.objects.get(sender=request.user.user_id)
+        conversation.unseen_message = 0
+        conversation.save()
         return Response(response)
 
 
@@ -100,25 +100,37 @@ class Message(CreateAPIView):
     serializer_class = MessagesSerializer
     queryset = Messages.objects.all()
 
+    def perform_create(self, serializer):
+        serializer.save()
+        sender = UserDetails(user=User(user_id=serializer.data['sender_id']))
+        recipient = UserDetails(user=User(user_id=serializer.data['recipient_id']))
+        print(sender)
+        print(recipient)
+        try:
+            conversion = Conversation.objects.get(sender=sender, recipient=recipient)
+            conversion.unseen_message += 1
+            conversion.save()
+        except Conversation.DoesNotExist as e:
+            conversion = Conversation(
+                sender=sender,
+                recipient=recipient,
+                last_message=serializer.data['message'],
 
-
-    def put(self, request, **kwargs):
-        ser = self.serializer_class(
-            data=request.data, context={'request': request}
-        )
-        if ser.is_valid():
-            message = Messages()
-            message.message_id = request.data['message_id']
-            message.conversation_id = request.data['conversation_id']
-            message.sender_id = request.data['sender_id']
-            message.recipient_id = request.data['recipient_id']
-            message.message_type = request.data['message_type']
-            message.message = request.data['message']
-            message.status = 1  # 1 means received  at server
-            message.save()
-            return True
-        else:
-            return False
+            )
+            conversion.save()
+        try:
+            conversion = Conversation.objects.get(sender=recipient, recipient=sender)
+            conversion.unseen_message += 1
+            conversion.last_message = serializer.data['message']
+            conversion.save()
+        except Conversation.DoesNotExist as e:
+            conversation = Conversation(
+                sender=recipient,
+                recipient=sender,
+                last_message=serializer.data['message'],
+                unseen_message=1
+            )
+            conversation.save()
 
     def delete(self, request, **kwargs):
         try:

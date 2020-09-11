@@ -30,6 +30,7 @@ class CheckUsernameAvailabilitySerializer(ModelSerializer):
         fields = ('username',)
 
 
+
 class SearchViewSerializer(ModelSerializer):
     class Meta:
         model = UserDetails

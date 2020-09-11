@@ -10,3 +10,6 @@ django-cassandra-engine==1.5.5
 psycopg2==2.8.4
 django-debug-toolbar==2.2
 django-redis==4.12.1
+dogslow==1.2
+Celery==4.4.7
+fcm_django==0.3.4
