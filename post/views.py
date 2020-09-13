@@ -52,7 +52,7 @@ class Post(CreateAPIView):
         ##print('image', image)
 
         [x.update(
-            {'likes': None,
+            {'likes': [],
              'user': SearchViewSerializer(instance=user).data})
             for x in likes]
         [x.update(
