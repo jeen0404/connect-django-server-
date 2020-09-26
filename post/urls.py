@@ -4,7 +4,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url('post', views.Post.as_view(), name='posts'),
+    url('post/', views.Post.as_view(), name='posts'),
+    url('posts/', views.Posts.as_view(), name='posts_list'),
     url('like/', views.Like.as_view(), name='get_user_message'),
     url('tag/', views.Tag.as_view(), name='Message'),
     url('comment/', views.Comment.as_view(), name='Message'),

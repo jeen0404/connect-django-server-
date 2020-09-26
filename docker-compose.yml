@@ -10,17 +10,24 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
     networks:
       - app-tier
+#    depends_on:
+#      - cassandra
 
-  cassandra:
-    image: 'bitnami/cassandra:latest'
-    networks:
-      - app-tier
+#  cassandra:
+#    image: 'bitnami/cassandra:latest'
+#    networks:
+#      - app-tier
   db:
     image: postgres
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+#    depends_on:
+#      - cassandra
+    networks:
+      - app-tier
+
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -29,6 +36,5 @@ services:
     ports:
       - "8000:8000"
     depends_on:
+#      - cassandra
       - db
-      - cassandra
-      - redis

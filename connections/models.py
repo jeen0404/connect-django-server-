@@ -2,7 +2,6 @@ from django.db import models
 from accounts.models import User
 
 
-
 class Relation(models.Model):
     relation_id = models.IntegerField(unique=True, auto_created=True, )
     name = models.CharField(max_length=100, unique=True)
@@ -45,7 +44,7 @@ class Connection(models.Model):
     secret_crush = models.BooleanField(default=False)
 
     # secret crush
-    #relation = models.ForeignKey(Relation, on_delete=models.DO_NOTHING, default=None, null=True)
+    # relation = models.ForeignKey(Relation, on_delete=models.DO_NOTHING, default=None, null=True)
 
     date_created = models.DateTimeField(auto_now_add=True)
 

@@ -1,7 +1,11 @@
 import uuid
 from cassandra.cqlengine import columns
 from django.utils import timezone
+from django.utils.datetime_safe import datetime
 from django_cassandra_engine.models import DjangoCassandraModel
+
+from accounts.models import UserDetails
+from accounts.serializers import SearchViewSerializer
 
 
 class Post(DjangoCassandraModel):
