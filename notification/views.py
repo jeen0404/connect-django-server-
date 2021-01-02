@@ -42,8 +42,10 @@ class NotificationView(generics.ListAPIView):
     serializer_class = NotificationSerializer
 
     def get(self, request, **kwargs):
+        # Generate().post_fix()
         id = request.GET.get('id', 1)
-        data = Notification.objects.filter(user=request.user, **{'id__gte': id})
+        data = Notification.objects.filter(**{'id__gte': id})
         data = data.values()
-        [d.update({'index': d['id']}) for d in data]
+        if len(data) > 20:
+            data = data[:20]
         return Response(data)

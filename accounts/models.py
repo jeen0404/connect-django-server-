@@ -9,7 +9,7 @@ from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser, PermissionsMixin
 )
 from django.utils import timezone
-from app import settings
+from raindrop import settings
 
 
 class UserManager(BaseUserManager):
@@ -66,7 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return True
 
     def has_module_perms(self, app_label):
-        """Does the user have permissions to view the app `app_label`?"""
+        """Does the user have permissions to view the raindrop `app_label`?"""
         # Simplest possible answer: Yes, always
         return True
 
@@ -148,10 +148,10 @@ class UserDetails(models.Model):
                                     message='only digits and numbers allowed.', )
     username = models.CharField(unique=True, validators=[username_regex], max_length=50)
     name = models.CharField(max_length=200)
-    profile_image = models.ImageField(null=True, blank=True,
-                                      upload_to=f'profile_image/{str(datetime.datetime.now().date())}', )
+    profession = models.CharField(max_length=200)
+    profile_image = models.TextField(default='')
 
-    bio = models.CharField(max_length=250, blank=True, default=None, null=True)
+    bio = models.CharField(max_length=250, blank=True, default="")
     birth_date = models.DateField(default=timezone.now)
 
     # following

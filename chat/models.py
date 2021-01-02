@@ -1,8 +1,6 @@
 from django.db import models
 from accounts.models import UserDetails, User
 import uuid
-from cassandra.cqlengine import columns
-from django_cassandra_engine.models import DjangoCassandraModel
 from django.utils import timezone
 
 
@@ -18,16 +16,13 @@ class Conversation(models.Model):
     froze = models.BooleanField(default=False)
 
 
-class Messages(DjangoCassandraModel):
-    message_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    conversation_id = columns.Text(max_length=72, partition_key=True)
-    sender_id = columns.Text(max_length=36)
-    recipient_id = columns.Text(max_length=36)
-    message = columns.Text(max_length=500)
-    message_type = columns.Text(max_length=10)
-    created_at = columns.DateTime(default=timezone.now)
-    deleted = columns.Boolean(default=False)
-    status = columns.SmallInt(default=0)
-
-    class Meta:
-        get_pk_field = 'message_id'
+class Messages(models.Model):
+    message_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
+    conversation_id = models.ForeignKey(Conversation, on_delete=models.DO_NOTHING, default=None)
+    sender_id = models.CharField(max_length=36)
+    recipient_id = models.CharField(max_length=36)
+    message = models.TextField(max_length=500)
+    message_type = models.CharField(max_length=10)
+    created_at = models.DateTimeField(default=timezone.now)
+    deleted = models.BooleanField(default=False)
+    status = models.BooleanField(default=0)

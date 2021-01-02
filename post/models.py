@@ -1,107 +1,79 @@
 import uuid
-from cassandra.cqlengine import columns
 from django.utils import timezone
-from django.utils.datetime_safe import datetime
-from django_cassandra_engine.models import DjangoCassandraModel
-
-from accounts.models import UserDetails
-from accounts.serializers import SearchViewSerializer
+from django.db import models
+from accounts.models import User
 
 
-class Post(DjangoCassandraModel):
-    post_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    user_id = columns.UUID(partition_key=True, default=uuid.uuid4)
-    can_comment = columns.Boolean(default=True)
-    can_share = columns.Boolean(default=True)
-    deleted = columns.Boolean(default=False)
-    can_bookmark = columns.Boolean(default=True)
-    created_at = columns.DateTime(default=timezone.now)
-
-    class Meta:
-        get_pk_field = 'post_id'
+class Post(models.Model):
+    post_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
+    user_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    can_comment = models.BooleanField(default=True)
+    can_share = models.BooleanField(default=True)
+    deleted = models.BooleanField(default=False)
+    can_bookmark = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
-class Like(DjangoCassandraModel):
-    like_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    post_id = columns.UUID(partition_key=True, default=uuid.uuid4)
-    user_id = columns.UUID(default=uuid.uuid4)
-    deleted = columns.Boolean(default=False)
-    created_at = columns.DateTime(default=timezone.now)
-
-    class Meta:
-        get_pk_field = 'like_id'
+class Like(models.Model):
+    like_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
+    post_id = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
+    user_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
-class Tag(DjangoCassandraModel):
-    tag_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    post_id = columns.UUID(partition_key=True, default=uuid.uuid4)
-    image_id = columns.UUID(default=uuid.uuid4)
-    user_id = columns.UUID(default=uuid.uuid4)
-    x_axis = columns.Float(default=50)
-    y_axis = columns.Float(default=50)
-    created_at = columns.DateTime(default=timezone.now)
-
-    class Meta:
-        get_pk_field = 'tag_id'
+class Comment(models.Model):
+    comment_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
+    post_id = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
+    user_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    comment = models.TextField(default="")
+    deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
-class Comment(DjangoCassandraModel):
-    comment_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    post_id = columns.UUID(partition_key=True, default=uuid.uuid4)
-    user_id = columns.UUID(default=uuid.uuid4)
-    comment = columns.Text(default="")
-    deleted = columns.Boolean(default=False)
-    created_at = columns.DateTime(default=timezone.now)
-
-    class Meta:
-        get_pk_field = 'comment_id'
+class View(models.Model):
+    view_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
+    post_id = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
+    user_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
-class View(DjangoCassandraModel):
-    view_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    post_id = columns.UUID(partition_key=True, default=uuid.uuid4)
-    user_id = columns.UUID(default=uuid.uuid4)
-    deleted = columns.Boolean(default=False)
-    created_at = columns.DateTime(default=timezone.now)
-
-    class Meta:
-        get_pk_field = 'view_id'
+class Bookmark(models.Model):
+    bookmark_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
+    post_id = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
+    user_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    deleted = models.BooleanField(default=False)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
-class Bookmark(DjangoCassandraModel):
-    bookmark_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    post_id = columns.UUID(partition_key=True, default=uuid.uuid4)
-    user_id = columns.UUID(default=uuid.uuid4)
-    deleted = columns.Boolean(default=False)
-    created_at = columns.DateTime(default=timezone.now)
-
-    class Meta:
-        get_pk_field = 'bookmark_id'
-
-
-class Report(DjangoCassandraModel):
-    report_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    post_id = columns.UUID(partition_key=True, default=uuid.uuid4)
-    user_id = columns.UUID(default=uuid.uuid4)
-    deleted = columns.Boolean(default=False)
-    report_type = columns.SmallInt()
-    note = columns.Text(max_length=500)
-    created_at = columns.DateTime(default=timezone.now)
-
-    class Meta:
-        get_pk_field = 'report_id'
+class Report(models.Model):
+    report_id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=36)
+    post_id = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
+    user_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    deleted = models.BooleanField(default=False)
+    report_type = models.IntegerField()
+    note = models.TextField(max_length=500)
+    created_at = models.DateTimeField(default=timezone.now)
 
 
-class Image(DjangoCassandraModel):
-    image_id = columns.UUID(primary_key=True, default=uuid.uuid4)
-    post_id = columns.UUID(partition_key=True, default=uuid.uuid4)
-    user_id = columns.UUID(default=uuid.uuid4)
-    deleted = columns.Boolean(default=False)
-    height = columns.Integer(default=800)
-    width = columns.Integer(default=40)
-    ratio = columns.Float(default=0.5)
-    url = columns.Text()
-    created_at = columns.DateTime(default=timezone.now)
+class Image(models.Model):
+    image_id = models.CharField(primary_key=True, default=uuid.uuid4,max_length=36)
+    post_id = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
+    user_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    deleted = models.BooleanField(default=False)
+    height = models.IntegerField(default=800)
+    width = models.IntegerField(default=40)
+    ratio = models.FloatField(default=0.5)
+    url = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
 
-    class Meta:
-        get_pk_field = 'image_id'
+
+class Tag(models.Model):
+    tag_id = models.CharField(primary_key=True, default=uuid.uuid4,max_length=36)
+    post_id = models.ForeignKey(Post, models.DO_NOTHING)
+    image_id = models.ForeignKey(Image, models.DO_NOTHING)
+    user_id = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    x_axis = models.FloatField(default=50)
+    y_axis = models.FloatField(default=50)
+    created_at = models.DateTimeField(default=timezone.now)

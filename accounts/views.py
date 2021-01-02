@@ -15,8 +15,8 @@ from .serializers import (
     PhoneTokenCreateSerializer, PhoneTokenValidateSerializer, CheckUsernameAvailabilitySerializer, AddDetailsSerializer,
     SearchViewSerializer, ProfileSerializer
 )
-
-from fcm_django.models import FCMDevice
+from django.core.cache import cache, caches
+from post.models import *
 
 
 class GenerateOTP(CreateAPIView):
@@ -26,7 +26,7 @@ class GenerateOTP(CreateAPIView):
 
     def post(self, request, format=None, **kwargs):
         # Get the patient if present or result None.
-        #print('request', request.data)
+        print('request', request.data)
         ser = self.serializer_class(
             data=request.data,
             context={'request': request}
@@ -72,9 +72,9 @@ class ValidateOTP(CreateAPIView):
                 login(request, user)
                 try:
                     user_details = UserDetails.objects.get(user=user)
-                    #print('user_details', user_details.user)
+                    # print('user_details', user_details.user)
                 except Exception as e:
-                    #print(e)
+                    # print(e)
                     user_details = None
                 response = user_detail(user, user_details)
 
@@ -100,7 +100,7 @@ class CheckUsernameAvailability(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, **kwargs):
-        #print('data', request.data)
+        # print('data', request.data)
         ser = self.serializer_class(
             data=request.data, context={'request': request}
         )
@@ -117,7 +117,7 @@ class AddUserDetailsView(CreateAPIView):
     queryset = UserDetails.objects.all()
 
     def post(self, request, **kwargs):
-        #print('data', request.data)
+        # print('data', request.data)
         ser = self.serializer_class(
             data=request.data, context={'request': request}
         )
@@ -136,9 +136,9 @@ class AddUserDetailsView(CreateAPIView):
 
 
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 10
+    page_size = 20
     page_size_query_param = 'page_size'
-    max_page_size = 10
+    max_page_size = 20
 
 
 class SearchUserView(generics.ListAPIView):
@@ -169,17 +169,21 @@ class ViewProfile(generics.CreateAPIView):
     serializer_class = ProfileSerializer
 
     def get(self, request, **kwargs):
-        print('username----------------------------------------------------', )
+
         try:
+            # cache_key = kwargs['username']
+            # data = cache.get(cache_key)
+            # if data:
+            #     return Response(data)
             data = UserDetails.objects.get(username=kwargs['username'])
+
             follower = Connection.objects.filter(following=data.user).count()
             following = Connection.objects.filter(follower=data.user).count()
+            posts = Post.objects.filter(user_id=data.user).count()
             data = self.serializer_class(instance=data).data
-            data.update({'follower': str(follower), 'following': str(following), 'post': '0'})
+            data.update({'follower': str(follower), 'following': str(following), 'post': str(posts)})
+            # cache.set(cache_key, data, 120)
         except ObjectDoesNotExist as e:
             data = {'reason': "user not exist", 'error': str(e)}
 
         return Response(data)
-
-
-
