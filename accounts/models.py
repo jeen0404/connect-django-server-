@@ -55,7 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     def __str__(self):  # __unicode__ on Python 2
-        return self.phone_number
+        return self.user_id
 
     def get_username(self):
         return self.phone_number

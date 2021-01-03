@@ -127,7 +127,8 @@ DATABASES = {
         'NAME': 'connect',
         'USER': 'postgres',
         'PASSWORD': 'dark_phantom',
-        'HOST': 'aailuk4mpr9vfu.corlaihiljzd.ap-south-1.rds.amazonaws.com',
+        #'HOST': 'aailuk4mpr9vfu.corlaihiljzd.ap-south-1.rds.amazonaws.com',
+        'HOST': 'localhost',
         "PORT": "5432"
     },
 }

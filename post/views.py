@@ -30,7 +30,11 @@ class Posts(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        data = md.Post.objects.filter(user_id=self.request.user.user_id).order_by('-created_at')
+        user_id = self.request.user.user_id
+        print(self.request.data)
+        if 'user_id' in self.request.data and self.request.data['user_id'] != self.request.user.user_id:
+            user_id = self.request.data['user_id']
+        data = md.Post.objects.filter(user_id=user_id, deleted=False).order_by('-created_at')
         return data
 
 
@@ -40,10 +44,36 @@ class Like(CreateAPIView):
     serializer_class = LikeSerializer
 
 
+class Likes(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LikeSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        if not self.request.data.get('post_id'):
+            return Response(data={'error': "post id is not in request"})
+        post_id = self.request.data.get('post_id')
+        data = md.Like.objects.filter(post_id=post_id).order_by('-created_at')
+        return data
+
+
 class Tag(CreateAPIView):
     """ for handling message request """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = TagSerializer
+
+
+class Tags(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TagSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        if not self.request.data.get('post_id'):
+            return Response(data={'error': "post id is not in request"})
+        post_id = self.request.data.get('post_id')
+        data = md.Tag.objects.filter(post_id=post_id).order_by('-created_at')
+        return data
 
 
 class Comment(CreateAPIView):
@@ -52,10 +82,36 @@ class Comment(CreateAPIView):
     serializer_class = CommentSerializer
 
 
+class Comments(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CommentSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        if not self.request.data.get('post_id'):
+            return Response(data={'error': "post id is not in request"})
+        post_id = self.request.data.get('post_id')
+        data = md.Comment.objects.filter(post_id=post_id).order_by('-created_at')
+        return data
+
+
 class View(CreateAPIView):
     """ for handling message request """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ViewSerializer
+
+
+class Views(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ViewSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        if not self.request.data.get('post_id'):
+            return Response(data={'error': "post id is not in request"})
+        post_id = self.request.data.get('post_id')
+        data = md.View.objects.filter(post_id=post_id).order_by('-created_at')
+        return data
 
 
 class Bookmark(CreateAPIView):
@@ -64,13 +120,52 @@ class Bookmark(CreateAPIView):
     serializer_class = BookmarkSerializer
 
 
+class Bookmarks(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = BookmarkSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        if not self.request.data.get('post_id'):
+            return Response(data={'error': "post id is not in request"})
+        post_id = self.request.data.get('post_id')
+        data = md.Bookmark.objects.filter(post_id=post_id).order_by('-created_at')
+        return data
+
+
 class Report(CreateAPIView):
     """ for handling message request """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ReportSerializer
 
 
+class Reports(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReportSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        if not self.request.data.get('post_id'):
+            return Response(data={'error': "post id is not in request"})
+        post_id = self.request.data.get('post_id')
+        data = md.Report.objects.filter(post_id=post_id).order_by('-created_at')
+        return data
+
+
 class Image(CreateAPIView):
     """ for handling message request """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ImageSerializer
+
+
+class Images(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ImageSerializer
+    pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        if not self.request.data.get('post_id'):
+            return Response(data={'error': "post id is not in request"})
+        post_id = self.request.data.get('post_id')
+        data = md.Image.objects.filter(post_id=post_id).order_by('-created_at')
+        return data

@@ -9,29 +9,9 @@ from datetime import datetime
 
 class PostSerializer(ModelSerializer):
     user = serializers.SerializerMethodField()
-    comments = serializers.SerializerMethodField()
-    tags = serializers.SerializerMethodField()
-    images = serializers.SerializerMethodField()
     likes_count = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     views_count = serializers.SerializerMethodField()
-    likes = serializers.SerializerMethodField()
-
-    @classmethod
-    def get_likes(self, post):
-        return LikeSerializer(instance=Like.objects.filter(post_id=post.post_id)[0:5], many=True).data
-
-    @classmethod
-    def get_tags(self, post):
-        return TagSerializer(instance=Tag.objects.filter(post_id=post.post_id)[0:5], many=True).data
-
-    @classmethod
-    def get_comments(self, post):
-        return CommentSerializer(instance=Comment.objects.filter(post_id=post.post_id)[0:2], many=True).data
-
-    @classmethod
-    def get_images(self, post):
-        return ImageSerializer(instance=Image.objects.filter(post_id=post.post_id), many=True).data
 
     @classmethod
     def get_user(self, post):
