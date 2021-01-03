@@ -125,11 +125,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'connect',
-        'USER': 'postgres',
-        'PASSWORD': 'dark_phantom',
-        'HOST': 'aailuk4mpr9vfu.corlaihiljzd.ap-south-1.rds.amazonaws.com',
-        #'HOST': 'localhost',
-        "PORT": "5432"
+        'USER': os.environ['RDS_USERNAME'],
+        'PASSWORD': os.environ['RDS_PASSWORD'],
+        'HOST': os.environ['RDS_HOSTNAME'],
+        'PORT': os.environ['RDS_PORT'],
     },
 }
 CASSANDRA_FALLBACK_ORDER_BY_PYTHON = True
