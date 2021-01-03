@@ -1,4 +1,3 @@
-from django.utils.datetime_safe import datetime
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -7,13 +6,17 @@ from rest_framework.generics import CreateAPIView
 from post.serializer import *
 import post.models as md
 
-import time
-
 
 class Post(CreateAPIView):
     """ for handling user_post request """
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PostSerializer
+
+    def get(self, request, *args, **kwargs):
+        if request.data.get('post_id'):
+            return Response(PostSerializer(instance=md.Post.objects.get(post_id=request.data['post_id'])).data)
+        else:
+            Response(data={'error': "invalid request format"})
 
 
 class StandardResultsSetPagination(PageNumberPagination):
