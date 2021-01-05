@@ -12,11 +12,13 @@ class Post(CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PostSerializer
 
-    def get(self, request, *args, **kwargs):
-        if request.data.get('post_id'):
-            return Response(PostSerializer(instance=md.Post.objects.get(post_id=request.data['post_id'])).data)
+    def get(self, request):
+        print(self.request.query_params)
+        if self.request.query_params.get('post_id'):
+            return Response(
+                PostSerializer(instance=md.Post.objects.get(post_id=self.request.query_params['post_id'])).data)
         else:
-            Response(data={'error': "invalid request format"})
+            return Response({'error': "invalid request format"})
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -25,19 +27,24 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 20
 
 
+class PostResultsSetPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+
 class Posts(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = PostSerializer
+    serializer_class = PostListSerializer
     search_fields = ['user_id', 'post_id']
     # filter_backends = (filters.SearchFilter,)
-    pagination_class = StandardResultsSetPagination
+    pagination_class = PostResultsSetPagination
 
     def get_queryset(self):
         user_id = self.request.user.user_id
-        print(self.request.data)
         if 'user_id' in self.request.data and self.request.data['user_id'] != self.request.user.user_id:
             user_id = self.request.data['user_id']
-        data = md.Post.objects.filter(user_id=user_id, deleted=False).order_by('-created_at')
+        data = md.Post.objects.values('post_id').filter(user_id=user_id, deleted=False).order_by('-created_at')
         return data
 
 
@@ -53,9 +60,9 @@ class Likes(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        if not self.request.data.get('post_id'):
+        if not self.request.query_params.get('post_id'):
             return Response(data={'error': "post id is not in request"})
-        post_id = self.request.data.get('post_id')
+        post_id = self.request.query_params.get('post_id')
         data = md.Like.objects.filter(post_id=post_id).order_by('-created_at')
         return data
 
@@ -72,9 +79,9 @@ class Tags(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        if not self.request.data.get('post_id'):
+        if not self.request.query_params.get('post_id'):
             return Response(data={'error': "post id is not in request"})
-        post_id = self.request.data.get('post_id')
+        post_id = self.request.query_params.get('post_id')
         data = md.Tag.objects.filter(post_id=post_id).order_by('-created_at')
         return data
 
@@ -91,9 +98,9 @@ class Comments(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        if not self.request.data.get('post_id'):
+        if not self.request.query_params.get('post_id'):
             return Response(data={'error': "post id is not in request"})
-        post_id = self.request.data.get('post_id')
+        post_id = self.request.query_params.get('post_id')
         data = md.Comment.objects.filter(post_id=post_id).order_by('-created_at')
         return data
 
@@ -110,9 +117,9 @@ class Views(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        if not self.request.data.get('post_id'):
+        if not self.request.query_params.get('post_id'):
             return Response(data={'error': "post id is not in request"})
-        post_id = self.request.data.get('post_id')
+        post_id = self.request.query_params.get('post_id')
         data = md.View.objects.filter(post_id=post_id).order_by('-created_at')
         return data
 
@@ -129,9 +136,9 @@ class Bookmarks(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        if not self.request.data.get('post_id'):
+        if not self.request.query_params.get('post_id'):
             return Response(data={'error': "post id is not in request"})
-        post_id = self.request.data.get('post_id')
+        post_id = self.request.query_params.get('post_id')
         data = md.Bookmark.objects.filter(post_id=post_id).order_by('-created_at')
         return data
 
@@ -148,9 +155,9 @@ class Reports(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        if not self.request.data.get('post_id'):
+        if not self.request.query_params.get('post_id'):
             return Response(data={'error': "post id is not in request"})
-        post_id = self.request.data.get('post_id')
+        post_id = self.request.query_params.get('post_id')
         data = md.Report.objects.filter(post_id=post_id).order_by('-created_at')
         return data
 
@@ -167,8 +174,8 @@ class Images(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        if not self.request.data.get('post_id'):
+        if not self.request.query_params.get('post_id'):
             return Response(data={'error': "post id is not in request"})
-        post_id = self.request.data.get('post_id')
+        post_id = self.request.query_params.get('post_id')
         data = md.Image.objects.filter(post_id=post_id).order_by('-created_at')
         return data

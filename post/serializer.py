@@ -36,6 +36,12 @@ class PostSerializer(ModelSerializer):
         fields = '__all__'
 
 
+class PostListSerializer(ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ('post_id',)
+
+
 class LikeSerializer(ModelSerializer):
     user = serializers.SerializerMethodField()
     likes = serializers.SerializerMethodField()
