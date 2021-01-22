@@ -37,9 +37,32 @@ class PostSerializer(ModelSerializer):
 
 
 class PostListSerializer(ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    likes_count = serializers.SerializerMethodField()
+    comments_count = serializers.SerializerMethodField()
+    views_count = serializers.SerializerMethodField()
+
+    @classmethod
+    def get_likes_count(self, post):
+        return str(Like.objects.filter(post_id=post.post_id).count())
+
+    @classmethod
+    def get_comments_count(self, post):
+        return str(Comment.objects.filter(post_id=post.post_id).count())
+
+    @classmethod
+    def get_views_count(self, post):
+        return str(View.objects.filter(post_id=post.post_id).count())
+    @classmethod
+    def get_user(self, tag):
+        user_data = UserDetails.objects.get(user=tag.user_id)
+        data = SearchViewSerializer(instance=user_data).data,
+        return data[0]
+
     class Meta:
         model = Post
-        fields = ('post_id',)
+        fields = '__all__'
 
 
 class LikeSerializer(ModelSerializer):

@@ -23,14 +23,7 @@ class Post(CreateAPIView):
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 20
-    page_size_query_param = 'page_size'
     max_page_size = 20
-
-
-class PostResultsSetPagination(PageNumberPagination):
-    page_size = 100
-    page_size_query_param = 'page_size'
-    max_page_size = 100
 
 
 class Posts(generics.ListAPIView):
@@ -38,13 +31,13 @@ class Posts(generics.ListAPIView):
     serializer_class = PostListSerializer
     search_fields = ['user_id', 'post_id']
     # filter_backends = (filters.SearchFilter,)
-    pagination_class = PostResultsSetPagination
+    pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
         user_id = self.request.user.user_id
-        if 'user_id' in self.request.data and self.request.data['user_id'] != self.request.user.user_id:
-            user_id = self.request.data['user_id']
-        data = md.Post.objects.values('post_id').filter(user_id=user_id, deleted=False).order_by('-created_at')
+        if 'user_id' in self.request.query_params and self.request.query_params['user_id'] != self.request.user.user_id:
+            user_id = self.request.query_params['user_id']
+        data = md.Post.objects.filter(user_id=user_id, deleted=False).order_by('-created_at')
         return data
 
 
