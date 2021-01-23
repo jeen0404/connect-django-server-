@@ -64,7 +64,8 @@ class FollowView(CreateAPIView):
                     notification.sub_title = user_details.name + " started following you"
                     notification.type = 'follow'
                     notification.icon = following.profile_image
-                    Notification.objects.filter(user=following.user, type='follow', title=user_details.username).delete()
+                    Notification.objects.filter(user=following.user, type='follow',
+                                                title=user_details.username).delete()
                     notification.save_and_send_message()
                 except:
                     print("Error in notification send")
@@ -107,9 +108,9 @@ class UnFollowView(CreateAPIView):
                     return Response({'reason': f"you'r not following {following}"}, status=status.HTTP_200_OK)
                 else:
                     connection.delete()
-                   # delete old notification wich is send fro follow
-                   # user_details = UserDetails.objects.get(user=request.user)
-                   # Notification.objects.filter(user=following, type='follow', title=user_details.username).delete()
+                # delete old notification wich is send fro follow
+                # user_details = UserDetails.objects.get(user=request.user)
+                # Notification.objects.filter(user=following, type='follow', title=user_details.username).delete()
                 return Response({'sucess': f"{following} is unfollowed succesfully"}, status=status.HTTP_200_OK)
             except Connection.DoesNotExist as e:
                 return Response({'reason': f"you'r not following  {following}"}, status=status.HTTP_200_OK)
@@ -119,9 +120,6 @@ class UnFollowView(CreateAPIView):
 
     def delete(self, request, format=False):
         return Response({'reason': 'delete request is not supported yet', }, status=status.HTTP_400_BAD_REQUEST)
-
-
-from django.forms.models import model_to_dict
 
 
 class GerAllFollowers(GenericAPIView):
