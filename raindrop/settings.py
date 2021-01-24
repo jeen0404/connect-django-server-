@@ -123,7 +123,7 @@ FCM_DJANGO_SETTINGS = {
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 
-if os.environ.get['RDS_USERNAME']:
+if os.environ.get('RDS_USERNAME'):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
