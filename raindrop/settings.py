@@ -123,18 +123,7 @@ FCM_DJANGO_SETTINGS = {
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 
-if False:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'connect',
-            'USER': 'postgres',
-            'PASSWORD': 'dark_phantom',
-            'HOST': '127.0.0.1',
-            "PORT": "5432"
-        },
-    }
-else:
+if os.environ.get['RDS_USERNAME']:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -143,6 +132,17 @@ else:
             'PASSWORD': os.environ['RDS_PASSWORD'],
             'HOST': os.environ['RDS_HOSTNAME'],
             'PORT': os.environ['RDS_PORT'],
+        },
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'connect',
+            'USER': 'postgres',
+            'PASSWORD': 'dark_phantom',
+            'HOST': '127.0.0.1',
+            "PORT": "5432"
         },
     }
 

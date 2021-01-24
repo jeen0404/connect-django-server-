@@ -4,12 +4,14 @@ from django.shortcuts import render
 from django.utils.datastructures import MultiValueDictKeyError
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from accounts.models import UserDetails, User
 from accounts.serializers import SearchViewSerializer
 from .models import Conversation, Messages
 from .serializers import ConversationSerializer, MessagesSerializer
-
+from rest_framework import permissions, generics, filters
 
 def index(request):
     return render(request, 'chat/index.html')
@@ -35,33 +37,51 @@ def send(request, message):
     })
 
 
-class GetUserList(CreateAPIView):
-    """ for handling follow request """
-    permission_classes = [permissions.IsAuthenticated]
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 20
+    max_page_size = 20
+
+
+class GetUserList(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = ConversationSerializer
+    search_fields = ['user_id', 'post_id']
+    # filter_backends = (filters.SearchFilter,)
+    pagination_class = StandardResultsSetPagination
 
-    def get(self, request, **kwargs):
-        user = request.user
-        conversation_list = Conversation.objects.filter(sender=user.user_id, deleted=False).order_by(
+    def get_queryset(self):
+        return Conversation.objects.filter(sender=self.request.user.user_id, deleted=False).order_by(
             'last_message_time')
-        data = conversation_list.values()
-        for i, j in enumerate(data):
-            j.update({"user": SearchViewSerializer(instance=conversation_list[i].recipient).data,
-                      'last_message_time': str(j['last_message_time']).split('.')[0]})
-        return Response(data)
 
-    def put(self, request, **kwargs):
-        sender = UserDetails(user=User(user_id=request.data['sender_id']))
-        recipient = UserDetails(user=User(user_id=request.data['recipient_id']))
-        print(sender)
-        print(recipient)
-        try:
-            conversion = Conversation.objects.get(sender=sender, recipient=recipient)
-            conversion.unseen_message = 0
-            conversion.save()
-        except Conversation.DoesNotExist as e:
-            print(e)
-        return Response(True)
+
+# class GetUserList(CreateAPIView):
+#     """ for handling follow request """
+#     permission_classes = [permissions.IsAuthenticated]
+#     serializer_class = ConversationSerializer
+#
+#     def get(self, request, **kwargs):
+#         user = request.user
+#         conversation_list = Conversation.objects.filter(sender=user.user_id, deleted=False).order_by(
+#             'last_message_time')
+#         data = conversation_list.values()
+#         for i, j in enumerate(data):
+#             j.update({"user": SearchViewSerializer(instance=conversation_list[i].recipient).data,
+#                       'last_message_time': str(j['last_message_time']).split('.')[0]})
+#         return Response(data)
+#
+#     def put(self, request, **kwargs):
+#         sender = UserDetails(user=User(user_id=request.data['sender_id']))
+#         recipient = UserDetails(user=User(user_id=request.data['recipient_id']))
+#         print(sender)
+#         print(recipient)
+#         try:
+#             conversion = Conversation.objects.get(sender=sender, recipient=recipient)
+#             conversion.unseen_message = 0
+#             conversion.save()
+#         except Conversation.DoesNotExist as e:
+#             print(e)
+#         return Response(True)
 
 
 class GetAllMessages(CreateAPIView):
