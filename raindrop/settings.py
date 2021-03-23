@@ -65,7 +65,7 @@ ROOT_URLCONF = 'raindrop.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['raindrop/holi'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -123,15 +123,15 @@ FCM_DJANGO_SETTINGS = {
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 
-if os.environ.get('RDS_USERNAME'):
+if True:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'NAME': 'connect',
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
+            'USER': 'postgres',
+            'PASSWORD': 'dark_phantom',
+            'HOST': 'aailuk4mpr9vfu.corlaihiljzd.ap-south-1.rds.amazonaws.com',
+            "PORT": "5432"
         },
     }
 else:

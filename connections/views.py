@@ -37,7 +37,7 @@ class FollowView(CreateAPIView):
             return Response(None, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, format=False, **kwargs):
-        return Response({'reason': 'delete request is not supported yet', }, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'reason': 'post request is not supported yet', }, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, **kwargs):
         try:

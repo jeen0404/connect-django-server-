@@ -47,7 +47,7 @@ fake.add_provider(internet)
 #     except Exception as e:
 #         pass
 #
-# users = User.objects.all()
+users = User.objects.all()
 #
 # # user details fix
 # x = 0
@@ -153,15 +153,32 @@ fake.add_provider(internet)
 
 posts = Post.objects.all()
 
+# for i in posts:
+#     images = Image.objects.filter(post_id=i)
+#     if len(images) == 0:
+#         print("fix", i.user_id)
+#         image = Image()
+#         image.post_id = i
+#         image.user_id = i.user_id
+#         image.url = requests.get("https://picsum.photos/400").url
+#         image.height = 400
+#         image.width = 400
+#         image.ratio = 1
+#         image.save()
+
+posts = Post.objects.all()
+
 for i in posts:
     images = Image.objects.filter(post_id=i)
-    if len(images) == 0:
-        print("fix", i.user_id)
-        image = Image()
-        image.post_id = i
-        image.user_id = i.user_id
-        image.url = requests.get("https://picsum.photos/400").url
-        image.height = 400
-        image.width = 400
-        image.ratio = 1
-        image.save()
+    for j in images:
+        low = random.randint(0, len(users)-5)
+        high = random.randint(low, low + random.randint(0, 3))
+        for k in range(low, high):
+            tag = Tag()
+            tag.user_id = users[k]
+            tag.post_id = i
+            tag.image_id = j
+            tag.x_axis = float(random.randint(0, 400))
+            tag.y_axis = float(random.randint(0, 400))
+            tag.save()
+            print(k)
